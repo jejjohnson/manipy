@@ -10,6 +10,7 @@ from sklearn.utils import check_array
 from sklearn.neighbors import NearestNeighbors, LSHForest
 from sklearn.utils.validation import check_random_state
 from annoy import AnnoyIndex
+from pyflann import FLANN
 # import hdidx
 
 
@@ -25,7 +26,7 @@ class KnnSolver(object):
         length of the radius for the neighbors in distance
 
     algorithm : str, default = 'annoy'
-        ['auto'|'annoy'|'brute'|'kd_tree'|'ball_tree'|'hdidx'|'pyflann'|'cyflann']
+        ['auto'|'annoy'|'brute'|'kd_tree'|'ball_tree'|'pyflann'|'cyflann']
         algorithm to find the k-nearest or radius-nearest neighbors
 
     algorithm_kwargs : dict, default = None
@@ -98,35 +99,8 @@ class KnnSolver(object):
 
             return distances, indices
 
-        # sklearn (lshf)
-        if self.algorithm in ['lshf']:
-
-            # initialize nearest neighbors model
-            nbrs_model = LSHForest(n_neighbors=self.n_neighbors,
-                                   radius=self.radius,
-                                   random_state=self.random_state,
-                                   **self.algorithm_kwargs)
-
-            # fit the model to the data
-            nbrs_model.fit(data)
-
-            # extract distances and indices
-            if self.method in ['knn']:
-                distances, indices = \
-                    nbrs_model.kneighbors(data, n_neighbors=self.n_neighbors,
-                                          return_distance=True)
-
-            elif self.method in ['radius']:
-                distances, indices = \
-                    nbrs_model.radius_neighbors(data, radius=self.radius,
-                                                return_distance=True)
-
-            else:
-                raise ValueError('Unrecognized connectivity method.')
-
-            return distances, indices
-
         elif self.algorithm in ['annoy']:
+
             if self.algorithm_kwargs is None:
                 return ann_annoy(data, n_neighbors=self.n_neighbors)
             else:
@@ -217,6 +191,17 @@ def ann_annoy(data, n_neighbors=2, metric='euclidean', trees=10):
             distances[i, j] = ann.get_distance(i, indices[i, j])
 
     return distances, indices
+
+# TODO: implement pyflann scheme for comparison
+# def ann_pyflann(data, n_neighbors=2, algorithm="kmeans", branching=32, iterations=7, checks=16):
+#
+#     # initialize flann object
+#     pyflann = FLANN()
+#
+#
+#
+#     return distances, indices
+
 
 
 # def ann_hdidx(data, n_neighbors = 10, verbose=None):

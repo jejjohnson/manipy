@@ -7,7 +7,6 @@ Email   : emanjohnson91@gmail.com
 """
 import numpy as np
 from manilearn.utils.graph import (create_laplacian, create_constraint)
-# from manilearn.schroedinger import potential_tradeoff
 from megaman.utils.eigendecomp import eigen_decomposition
 # TODO: default eigensolver_kwargs
 # TODO: default regularize_kwargs
@@ -142,6 +141,140 @@ def graph_embedding(adjacency_matrix, n_components=2, operator='ssse',
     # eigvals, eigvecs = eig_model.find_eig(A=A_mat, B=B_mat)
 
     return eigenvalues, embedding
+
+
+def linear_graph_embedding(adjacency_matrix, data_matrix, regularize_mat=None,
+                           alpha=None, n_components=2,  constraint='degree',
+                           eigensolver_params=None, regularize_params=None):
+    """This function takes an adjacency matrix, data matrix, and regularization
+    matrix (optional) and uses a specified (optional) eigenvalue decomposition
+    method to find the eigenvalues and eigenvectors.
+
+    Parameters
+    ----------
+    adjacency_matrix    : array (N x N)
+        this is the n-by-n sparse or full adjacency array which will be
+        decomposed by the eigenvalue problem.
+
+    data_matrix     : array (N x D)
+        this is the N-by-D matrix of the original data matrix from where the
+        adjacency matrix was constructed. to be used in the eigenvalue
+        decomposition
+
+    regularize_mat  : array (N x N)
+        an N-by-N matrix to be used to augment the adjacency matrix which user
+        specified amendments
+
+    alpha   : float (default = None)
+        the trade off parameter to provide a balance between the original
+        adjacency matrix construction and the user specified regularization
+        matrix
+
+    constraint : str (default = 'degree')
+        the constraint matrix when solving the eigenvalue decomposition problem
+        ('degree', 'identity', 'similarity', 'dissimilarity', 'custom')
+
+    n_components : int, (default = 2)
+        the number of components to keep in the eigenvalue decomposition
+
+    eigensolver_params : dict
+        contains all of the optional eigensolver parameters
+
+    regularize_params : dict
+        constains all of the regularization params for the regularization
+
+    constraint_params : dict
+        contains all of the constraint params for the regularization
+
+    Returns
+    -------
+    eigvals : array, (1 x n_components)
+        eigenvalues of the linear graph embedding
+    eigvecs : array, (N x n_components)
+        eigenvectors of the linear graph embedding
+
+    Information
+    -----------
+    Author  : Juan Emmanuel Johnson
+    Date    : 4th October, 2017
+    Email   : emanjohnson91@gmail.com
+
+    References
+    ----------
+    TODO: deng cai
+    """
+
+    # check the data matrices sizes
+
+    pass
+
+    return None
+
+def kernel_graph_embedding(adjacency_matrix, data_matrix, regularize_mat=None,
+                           alpha=None, kernel='rbf', n_components=2,
+                           constraint='degree', kernel_params=None,
+                           eigensolver_params=None, regularize_params=None):
+    """This function takes an adjacency matrix, data matrix, and regularization
+    matrix (optional) and uses a specified (optional) eigenvalue decomposition
+    method to find the eigenvalues and eigenvectors.
+
+    Parameters
+    ----------
+    adjacency_matrix    : array (N x N)
+        this is the n-by-n sparse or full adjacency array which will be
+        decomposed by the eigenvalue problem.
+
+    data_matrix     : array (N x D)
+        this is the N-by-D matrix of the original data matrix from where the
+        adjacency matrix was constructed. to be used in the eigenvalue
+        decomposition
+
+    regularize_mat  : array (N x N)
+        an N-by-N matrix to be used to augment the adjacency matrix which user
+        specified amendments
+
+    alpha   : float (default = None)
+        the trade off parameter to provide a balance between the original
+        adjacency matrix construction and the user specified regularization
+        matrix
+
+    constraint : str (default = 'degree')
+        the constraint matrix when solving the eigenvalue decomposition problem
+        ('degree', 'identity', 'similarity', 'dissimilarity', 'custom')
+
+    n_components : int, (default = 2)
+        the number of components to keep in the eigenvalue decomposition
+
+    kernel_params : dict, (default = None)
+        contains all of the parameters for the kernel matrix
+
+    eigensolver_params : dict
+        contains all of the optional eigensolver parameters
+
+    regularize_params : dict
+        constains all of the regularization params for the regularization
+
+    constraint_params : dict
+        contains all of the constraint params for the regularization
+
+    Returns
+    -------
+    eigvals : array, (1 x n_components)
+        eigenvalues of the linear graph embedding
+    eigvecs : array, (N x n_components)
+        eigenvectors of the linear graph embedding
+
+    Information
+    -----------
+    Author  : Juan Emmanuel Johnson
+    Date    : 4th October, 2017
+    Email   : emanjohnson91@gmail.com
+
+    References
+    ----------
+    TODO: deng cai
+    """
+    return None
 
 
 # TODO: fix import error with potential trade off
