@@ -10,9 +10,9 @@ from sklearn.base import BaseEstimator
 from sklearn.utils import check_array
 from sklearn.metrics.pairwise import cosine_distances
 from sklearn.neighbors import NearestNeighbors
-from scipy.sparse import (csr_matrix, spdiags, coo_matrix)
+from scipy.sparse import (csr_matrix, spdiags)
 from manilearn.utils.graph import (maximum, adjacency, create_laplacian)
-from manilearn.embeddings import graph_embedding
+from utils.embeddings import graph_embedding
 
 
 class SchroedingerEigenmaps(BaseEstimator):
