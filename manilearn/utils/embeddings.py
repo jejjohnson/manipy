@@ -6,7 +6,7 @@ Date    : 5th February, 2017
 Email   : emanjohnson91@gmail.com
 """
 import numpy as np
-from manilearn.utils.graph import (create_laplacian, create_constraint)
+from utils.graph import (create_laplacian, create_constraint)
 from megaman.utils.eigendecomp import eigen_decomposition
 # TODO: default eigensolver_kwargs
 # TODO: default regularize_kwargs
@@ -14,7 +14,8 @@ from megaman.utils.eigendecomp import eigen_decomposition
 
 def graph_embedding(adjacency_matrix, n_components=2, operator='ssse',
                     constraint='degree', regularize_mat=None,
-                    eigen_solver='auto', eigensolver_kwargs=None,
+                    solver='arpack',
+                    eigensolver_kwargs=None,
                     regularize_kwargs=None):
     """Graph Embedding algorithm.
 
@@ -106,13 +107,13 @@ def graph_embedding(adjacency_matrix, n_components=2, operator='ssse',
 
     # solve the eigenvalue decomposition problem
 
-    if eigen_solver in ['arpack']:
+    if solver in ['arpack']:
         if eigensolver_kwargs is None:
             eigensolver_kwargs = {'M': constraint_mat}
         else:
             eigensolver_kwargs['M'] = constraint_mat
 
-    elif eigen_solver in ['dense']:
+    elif solver in ['dense']:
 
         # transform matrices to dense arrays
         A_mat = A_mat.toarray()
@@ -123,7 +124,7 @@ def graph_embedding(adjacency_matrix, n_components=2, operator='ssse',
         else:
             eigensolver_kwargs['b'] = constraint_mat
 
-    elif eigen_solver in ['lobpcg', 'pyamg']:
+    elif solver in ['lobpcg', 'pyamg']:
         if eigensolver_kwargs is None:
             eigensolver_kwargs = {'B': constraint_mat}
         else:
@@ -133,7 +134,7 @@ def graph_embedding(adjacency_matrix, n_components=2, operator='ssse',
         raise ValueError('Unrecognized eigensolver')
 
     eigenvalues, embedding = eigen_decomposition(A_mat, n_components=n_components,
-                                                 eigen_solver=eigen_solver,
+                                                 eigen_solver=solver,
                                                  solver_kwds=eigensolver_kwargs)
     # eig_model = EigSolver(n_components=n_components, eigsolver=eigen_solver,
     #                       eigensolver_kwargs=eigensolver_kwargs)

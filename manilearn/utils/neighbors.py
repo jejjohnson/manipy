@@ -32,14 +32,13 @@ class KnnSolver(object):
     algorithm_kwargs : dict, default = None
         a dictionary of key word values for specific arguments on each algorithm
 
-    References (TODO)
+    References
     ----------
     * sklearn: brute, kd_tree, ball_tree
         https://goo.gl/2noI11
-    * sklearn: lshf
-        https://goo.gl/qrQryJ
     * annoy
         https://github.com/spotify/annoy
+    * nmslib (TODO)
     * pyflann (TODO)
         https://github.com/primetang/pyflann
     * cyflann (TODO)
@@ -106,11 +105,6 @@ class KnnSolver(object):
             else:
                 return ann_annoy(data, n_neighbors=self.n_neighbors,
                                  **self.algorithm_kwargs)
-
-        # if self.algorothm in ['hdidx']:
-        #
-        #     return ann_hdidx(data, n_neighbors=self.n_neighbors,
-        #                      **self.algorithm_kwargs)
 
         elif self.algorithm in ['pyflann']:
             # TODO: implement pyflann nn method
@@ -191,62 +185,3 @@ def ann_annoy(data, n_neighbors=2, metric='euclidean', trees=10):
             distances[i, j] = ann.get_distance(i, indices[i, j])
 
     return distances, indices
-
-# TODO: implement pyflann scheme for comparison
-# def ann_pyflann(data, n_neighbors=2, algorithm="kmeans", branching=32, iterations=7, checks=16):
-#
-#     # initialize flann object
-#     pyflann = FLANN()
-#
-#
-#
-#     return distances, indices
-
-
-
-# def ann_hdidx(data, n_neighbors = 10, verbose=None):
-#     """My approximate nearest neighbor function that uses the HDIDX python
-#     package
-#
-#     Parameters
-#     ----------
-#     data : array, (N x D)
-#
-#     n_neighbors : int, default = 2
-#
-#     indexer : int, default = 8
-#
-#     verbose : int, default 1
-#
-#     Returns
-#     -------
-#     indices : array, (N x n_neighbors)
-#
-#     distances : array, (N x n_neighbors)
-#
-#     Information
-#     -----------
-#     Author  : J. Emmanuel Johnson
-#     Date    :
-#     Email   : emanjohnson91@gmail.com
-#     """
-#     dimensions = data.shape[1]
-#
-#     data_query = np.random.random((n_neighbors, dimensions))
-#     if verbose:
-#         print(np.shape(data_query))
-#
-#     # create Product Quantization Indexer
-#     idx = hdidx.indexer.IVFPQIndexer()
-#
-#     # build indexer
-#     idx.build({'vals': data, 'nsubq': indexer})
-#
-#     # add database items to the indexer
-#     idx.add(data)
-#
-#     # searching in the database and return top-10 items for
-#     # each query
-#     indices, distances = idx.search(data, n_neighbors)
-#
-#     return indices, distances

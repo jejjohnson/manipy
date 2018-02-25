@@ -79,7 +79,7 @@ class SchroedingerEigenmaps(BaseEstimator):
     Date    : 4th February, 2017
     Email   : emanjohnson91@gmail.com
     """
-    def __init__(self, n_components=2, eigen_solver='lobpcg', n_neighbors=10,
+    def __init__(self, n_components=2, n_neighbors=10,
                  operator='ssse', constraint='degree', alpha=17.73, beta=13,
                  adjacency_kwargs=None, embedding_kwargs=None,
                  eigensolver_kwargs=None, potential_kwargs=None):
@@ -125,7 +125,6 @@ class SchroedingerEigenmaps(BaseEstimator):
                             operator=self.operator, constraint=self.constraint,
                             regularize_mat=potential_matrix,
                             regularize_kwargs=self.potential_kwargs,
-                            eigen_solver=self.eigen_solver,
                             eigensolver_kwargs=self.eigensolver_kwargs)
 
         return self
