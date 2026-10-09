@@ -28,6 +28,7 @@ _SLOW_DOCTESTS: frozenset[str] = frozenset(
         # ~10 s cold: graphs, fit, compile
         "manipy._alignment._linear.ManifoldAlignment",
         "manipy._embeddings._isomap.Isomap",  # ~5 s: two swiss-roll fits
+        "manipy._embeddings._lle.LocallyLinearEmbedding",  # ~6 s: two fits
     }
 )
 
