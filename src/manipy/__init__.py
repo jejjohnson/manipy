@@ -26,7 +26,7 @@ from manipy._embeddings import DiffusionMaps, Isomap, LocallyLinearEmbedding
 from manipy._out_of_sample import NystromExtension
 
 
-__version__ = "0.0.0"  # x-release-please-version
+__version__ = "0.1.0"  # x-release-please-version
 
 __all__ = [
     "DiffusionMaps",
