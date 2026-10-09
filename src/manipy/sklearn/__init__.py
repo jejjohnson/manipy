@@ -10,6 +10,8 @@ end in ``_``, NumPy in and out), so ``clone``, ``get_params`` and
 - `Isomap`: Isomap and landmark Isomap (``fit`` / ``fit_transform``).
 - `LocallyLinearEmbedding`: LLE, modified LLE, Hessian LLE and LTSA
   (``fit`` / ``fit_transform``).
+- `NystromExtension`: wraps diffusion maps or kernellib's Laplacian /
+  Schrödinger eigenmaps into a transformer with a Nyström ``transform``.
 - `ManifoldAlignment`: multi-domain alignment. Its ``fit`` takes *lists* of
   per-domain arrays and its ``transform`` needs ``domain=``, so it is a
   partial fit of the scikit-learn contract (see its docstring).
@@ -17,6 +19,13 @@ end in ``_``, NumPy in and out), so ``clone``, ``get_params`` and
 
 from manipy.sklearn._alignment import ManifoldAlignment
 from manipy.sklearn._embeddings import DiffusionMaps, Isomap, LocallyLinearEmbedding
+from manipy.sklearn._out_of_sample import NystromExtension
 
 
-__all__ = ["DiffusionMaps", "Isomap", "LocallyLinearEmbedding", "ManifoldAlignment"]
+__all__ = [
+    "DiffusionMaps",
+    "Isomap",
+    "LocallyLinearEmbedding",
+    "ManifoldAlignment",
+    "NystromExtension",
+]

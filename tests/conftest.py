@@ -30,6 +30,7 @@ _SLOW_DOCTESTS: frozenset[str] = frozenset(
         "manipy._embeddings._isomap.Isomap",  # ~5 s: two swiss-roll fits
         "manipy._embeddings._lle.LocallyLinearEmbedding",  # ~6 s: two fits
         "manipy._embeddings._diffusion_maps.DiffusionMaps",  # ~4 s: graph + fit
+        "manipy._out_of_sample.NystromExtension",  # ~10 s: two fits + extensions
     }
 )
 

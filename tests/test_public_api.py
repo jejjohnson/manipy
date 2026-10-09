@@ -19,7 +19,7 @@ import manipy
 # Every non-package module directly under ``manipy``. A new module must be
 # added here (and given an API doc page) for ``test_no_unexpected_submodules``
 # to pass.
-SUBMODULES: list[str] = ["datasets", "hsi", "metrics"]
+SUBMODULES: list[str] = ["_out_of_sample", "datasets", "hsi", "metrics"]
 
 
 def _isort_order(names: list[str]) -> list[str]:
