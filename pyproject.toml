@@ -1,0 +1,161 @@
+[project]
+name = "manipy-jax"
+version = "0.0.0"
+description = "Manifold alignment, dimensionality reduction and hyperspectral workflows in JAX, built on kernellib."
+authors = [
+    {name="J. Emmanuel Johnson", email="jemanjohnson34@gmail.com"},
+]
+license = { file = "LICENSE" }
+readme = "README.md"
+keywords = ["jax", "manifold-learning", "manifold-alignment", "dimensionality-reduction", "hyperspectral", "equinox"]
+requires-python = ">=3.12"
+classifiers = [
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Natural Language :: English",
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Science/Research",
+    "Development Status :: 2 - Pre-Alpha",
+]
+dependencies = [
+    "jax>=0.10",
+    "jaxlib>=0.10",
+    "equinox>=0.13.8",
+    "jaxtyping>=0.3",
+    "einx>=0.4.3",
+    "lineax>=0.1.1",
+    # kernellib and gaussx are not on PyPI yet; [tool.uv.sources] resolves
+    # their release tags from GitHub. The `>=` floors are what a PyPI release
+    # will satisfy later.
+    "kernellib>=0.0.18",
+    "gaussx>=0.6.5",
+]
+
+[project.optional-dependencies]
+# The opt-in scikit-learn adapter, manipy.sklearn. The core never imports it.
+sklearn = ["scikit-learn>=1.6"]
+
+[project.urls]
+Repository = "https://github.com/jejjohnson/manipy"
+
+[dependency-groups]
+dev = [
+    "scikit-learn>=1.6",
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+    "pre-commit>=4.6.0",
+    "pytest-xdist>=3.8",
+]
+lint = [
+    "ruff>=0.15.22",
+]
+typecheck = [
+    "scikit-learn>=1.6",
+    "ty>=0.0.73",
+]
+docs = [
+    "scikit-learn>=1.6",
+    # The prose half of the site is built by mystmd, a Node CLI installed with
+    # `npm install -g mystmd` rather than through uv. See docs/README.md.
+    # MkDocs here builds only the API reference, whose `objects.inv` is what
+    # lets the MyST prose cross-reference into it.
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.7.7",
+    "mkdocstrings[python]>=1.0.6",
+    "jupytext>=1.19.3",
+    "ipykernel>=7.3.0",
+    "nbconvert>=7.16.6",
+    "matplotlib>=3.11.1",
+    "watermark>=2.6.0",
+    # pygments 2.20.0 dropped the None -> '' coercion for HtmlFormatter(filename=...),
+    # but pymdownx.highlight 10.21.x still passes the untitled-code-block title
+    # through as None. Pin until a fixed pymdown-extensions release ships.
+    "pygments>=2.20.0,<2.22",
+]
+
+[tool.uv]
+# kernellib's own `[tool.uv.sources]` pins gaussx to an older git tag, which
+# conflicts with the tag pinned here; the override keeps one gaussx. Move it in
+# step with the gaussx source below, and drop it once kernellib's pin catches up.
+override-dependencies = [
+    "gaussx @ git+https://github.com/jejjohnson/gaussx.git@v0.6.5",
+]
+
+[tool.uv.sources]
+# Not yet on PyPI; resolve the release tags from GitHub.
+kernellib = { git = "https://github.com/jejjohnson/kernellib.git", tag = "v0.0.18" }
+gaussx = { git = "https://github.com/jejjohnson/gaussx.git", tag = "v0.6.5" }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/manipy"]
+
+[tool.hatch.metadata]
+# kernellib itself declares geonnax as a PEP 508 direct URL; hatchling must
+# allow direct references for the git sources above to be accepted.
+allow-direct-references = true
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+# F722: jaxtyping shape annotations such as ``Float[Array, "N D"]`` are
+# strings that ruff would otherwise parse as forward references.
+ignore = ["E402", "E721", "E731", "E741", "F722"]
+allowed-confusables = ["−", "σ", "𝒩", "×", "μ", "Σ", "α", "β", "λ", "ε", "∈", "⊙", "≈", "⟺", "′"]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+lines-after-imports = 2
+
+[tool.ruff.lint.per-file-ignores]
+# Tests deliberately construct invalid inputs and assert on the failure.
+"tests/**" = ["B011"]
+
+[tool.ruff.format]
+# Format the code inside ``Examples:`` doctest blocks like real source.
+docstring-code-format = true
+docstring-code-line-length = 72
+
+[tool.ty.environment]
+python-version = "3.12"
+
+[tool.pytest.ini_options]
+# `src/manipy` is a testpath so that --doctest-modules collects the
+# ``Examples:`` blocks in every Google-style docstring. They are executable
+# documentation: if an example in the docs goes stale, CI fails.
+testpaths = ["tests", "src/manipy"]
+# The default run is the fast tier. Select the others with -m (the last -m
+# wins): `pytest -m slow`, `pytest -m integration`, or everything with
+# `pytest -m ""`. Coverage is not in addopts: no single tier reaches the
+# threshold, so CI combines the tiers' coverage and gates on the union.
+addopts = """\
+    --doctest-modules \
+    -m "not slow and not integration"\
+"""
+markers = [
+    "slow: individually expensive tests (>~1s: heavy numerics, jit+grad+vmap sweeps, Monte Carlo convergence)",
+    "integration: end-to-end workflows (scikit-learn estimator checks, cross-library pipelines, optional backends)",
+]
+
+[tool.coverage.run]
+source = ["src/manipy"]
+omit = ["tests/*"]
+
+[tool.coverage.report]
+show_missing = true
+# TODO: raise to 90 (kernellib's gate) once M1 lands real code; the M0
+# scaffold is almost empty, so any positive threshold would be noise.
+fail_under = 0
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "\\.\\.\\.",
+]

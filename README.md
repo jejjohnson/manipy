@@ -1,53 +1,68 @@
-# Semisupervised Manifold Learning Toolbox
+# manipy
 
-Specializing on Semi-Supervised Methods
+Manifold alignment, dimensionality reduction and hyperspectral workflows in
+JAX, built on [kernellib](https://github.com/jejjohnson/kernellib) and
+[gaussx](https://github.com/jejjohnson/gaussx).
 
-### Dimension Reduction Methods
+> **Status: scaffold (roadmap phase M0).** Nothing beyond `__version__` is
+> exported yet. The algorithms land in phases M1 to M5; see the
+> [roadmap](https://github.com/jejjohnson/kernellib/blob/main/docs/roadmap/roadmap-manipy.md).
 
-* Kernel Eigenmap Methods
-* Kernel Eigenmap Projection Methods
-* Kernel Eigenmap Regression Methods
+## Legacy code
 
-### Algorithms
+manipy was first a 2018 numpy / scikit-learn package (`manilearn/`). That code
+is preserved on the [`legacy`](https://github.com/jejjohnson/manipy/tree/legacy)
+branch and the `v0.0.0-legacy` tag. Nothing from it is carried forward: its
+algorithms (Laplacian eigenmaps, LPP, Schrödinger eigenmaps) now live in
+kernellib, and the rest is rebuilt here from the reference implementations.
 
-##### Classic Kernel Eigenmap Methods
+## What lives where
 
-* Laplacian Eigenmaps
-* Isometric Mapping
-* Local Linear Embedding
+| In manipy | In kernellib |
+|---|---|
+| manifold alignment, Isomap, the LLE family, diffusion maps, out-of-sample extension | graphs, Laplacians, graph kernels |
+| hyperspectral (HSI) workflows, embedding-quality and classification metrics, dataset loaders | Laplacian / Schrödinger eigenmaps, LPP, SEP, kernel PCA |
+| scikit-learn adapters (`manipy.sklearn`) for the above | kernels, dependence measures, kernel regression |
 
-##### Linear Graph Embedding Methods
+manipy uses kernellib and never re-exports it: import
+`kernellib.LaplacianEigenmaps` directly.
 
-* Locality Preserving Projections
-* Isometric Projections
-* Neighbourhood Preserving Projections
-* Maximum Margin Projections
-* Kernel Extensions
-* Orthogonal Extensions
-* Tensor Extensions
+## Installation
 
-##### Classic Kernel Eigenmap Regression Methods
+The PyPI distribution is **`manipy-jax`** (the name `manipy` belongs to an
+unrelated project); the import name is `manipy`. It is not published yet, and
+kernellib and gaussx are pinned by git tag, so install from the repository:
 
-* Supervised Spectral Regression
-* Semi-Supervised Spectral Regression
-* Unsupervised Spectral Regression
-* Kernel Spectral Regression
-* Orthogonal Spectral Regression
-* Tensor Spectral Regression
+```bash
+uv add "manipy-jax @ git+https://github.com/jejjohnson/manipy.git"
+```
 
-##### Modified Kernel Eigenmap Methods
+For development:
 
-* Schroedinger Eigenmaps
-* Schroedinger Eigenmap Projections
-* Schroedinger Eigenmap Regression 
+```bash
+git clone https://github.com/jejjohnson/manipy.git
+cd manipy
+make install     # uv sync --all-groups + pre-commit hooks
+make test        # fast tier
+make docs        # needs mystmd: npm install -g mystmd
+```
 
-### Inspiration
+The scikit-learn adapters need the optional extra, `manipy-jax[sklearn]`; the
+core never imports scikit-learn.
 
-* MLAlgorithms Repository - [Github][1]
-* University of Valencia - Image and Signal Processing Group - simpleRegressionv2.1 - [Website][2]
-*  
+```python
+import manipy
 
+manipy.__version__  # "0.0.0"
+```
 
-[1]: https://github.com/rushter/MLAlgorithms
-[2]: http://isp.uv.es/soft_regression.html
+## Development
 
+See [CLAUDE.md](CLAUDE.md) for the package layout, conventions and test tiers,
+[AGENTS.md](AGENTS.md) for standing agent instructions, and
+[CONTRIBUTING.md](CONTRIBUTING.md). Commit messages follow
+[Conventional Commits](https://www.conventionalcommits.org/).
+
+## License
+
+MIT; see [LICENSE](LICENSE).
