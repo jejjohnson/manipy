@@ -72,7 +72,9 @@ jobs:
       - name: Install dependencies
         run: uv sync --group dev
       - name: Run integration tests
-        run: uv run pytest -n auto -m integration --cov=src/manipy --cov-report= --cov-fail-under=0
+        # Exit code 5 means "no tests collected": allowed while a phase has
+        # no integration tests yet (M0); any real failure still fails the job.
+        run: uv run pytest -n auto -m integration --cov=src/manipy --cov-report= --cov-fail-under=0 || [ $? -eq 5 ]
       - name: Upload coverage data
         uses: actions/upload-artifact@v7
         with:
