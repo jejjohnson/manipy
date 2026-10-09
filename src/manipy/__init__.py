@@ -9,6 +9,7 @@ The public API is flat and ``__all__`` is the contract:
 - `ManifoldAlignment`: Wang, SSMA and SEMA manifold alignment of several
   domains with partial labels.
 - `Isomap`: Isomap and landmark Isomap.
+- `DiffusionMaps`: diffusion maps with anisotropic normalisation.
 - `LocallyLinearEmbedding`: LLE, modified LLE, Hessian LLE and LTSA.
 
 The scikit-learn adapters live in ``manipy.sklearn`` (extra
@@ -19,12 +20,13 @@ from __future__ import annotations
 
 from manipy import datasets, hsi, metrics
 from manipy._alignment import ManifoldAlignment
-from manipy._embeddings import Isomap, LocallyLinearEmbedding
+from manipy._embeddings import DiffusionMaps, Isomap, LocallyLinearEmbedding
 
 
 __version__ = "0.0.0"  # x-release-please-version
 
 __all__ = [
+    "DiffusionMaps",
     "Isomap",
     "LocallyLinearEmbedding",
     "ManifoldAlignment",
