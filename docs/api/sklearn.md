@@ -28,6 +28,8 @@ Y = Isomap(n_components=2, n_neighbors=12).fit_transform(X)
 
 ::: manipy.sklearn.LocallyLinearEmbedding
 
+::: manipy.sklearn.DiffusionMaps
+
 ## Manifold alignment
 
 Alignment is a **partial fit** of the scikit-learn contract. It needs several
