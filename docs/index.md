@@ -14,12 +14,13 @@ or kernel PCA. Those live in
 [kernellib](https://github.com/jejjohnson/kernellib), and manipy uses them
 without re-exporting them: import `kernellib.LaplacianEigenmaps` directly.
 
-:::{warning} Status: pre-alpha (phase M1)
+:::{warning} Status: pre-alpha (phase M2)
 This repository was reset from a 2018 numpy / scikit-learn package to a fresh
 JAX package. Manifold alignment
 ([`ManifoldAlignment`](xref:api#manipy.ManifoldAlignment): Wang, SSMA, SEMA)
-and its scikit-learn adapter are in; the other algorithms land in the phases
-of the [roadmap](roadmap/roadmap.md).
+and its scikit-learn adapter are in, as are the hyperspectral workflow
+(`manipy.hsi`), `manipy.metrics` and `manipy.datasets`; the other algorithms
+land in the phases of the [roadmap](roadmap/roadmap.md).
 :::
 
 ## Installation

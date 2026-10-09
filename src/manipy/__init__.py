@@ -15,9 +15,10 @@ The scikit-learn adapters live in ``manipy.sklearn`` (extra
 
 from __future__ import annotations
 
+from manipy import datasets, hsi, metrics
 from manipy._alignment import ManifoldAlignment
 
 
 __version__ = "0.0.0"  # x-release-please-version
 
-__all__ = ["ManifoldAlignment"]
+__all__ = ["ManifoldAlignment", "datasets", "hsi", "metrics"]
