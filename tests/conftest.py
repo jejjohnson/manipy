@@ -23,7 +23,9 @@ def getkey() -> eqxi.GetKey:
 # Doctests cannot take decorators, so they are tiered here. The scikit-learn
 # adapters' examples are integration tests; add the qualified names of any
 # doctest that measures over a second (mostly jit compilation) to the set.
-_SLOW_DOCTESTS: frozenset[str] = frozenset()
+_SLOW_DOCTESTS: frozenset[str] = frozenset(
+    {"manipy._alignment._linear.ManifoldAlignment"}  # ~10 s cold: graphs, fit, compile
+)
 
 
 def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:

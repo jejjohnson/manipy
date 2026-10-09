@@ -1,0 +1,34 @@
+# scikit-learn adapters
+
+`manipy.sklearn` wraps manipy's estimators in scikit-learn's conventions
+(mutable, `fit` returns `self`, fitted attributes end in `_`, NumPy in and
+out). It needs the extra:
+
+```bash
+pip install "manipy-jax[sklearn]"
+```
+
+The core never imports scikit-learn; `import manipy` does not load it.
+
+## Manifold alignment
+
+Alignment is a **partial fit** of the scikit-learn contract. It needs several
+domains with different numbers of features, which one
+`(n_samples, n_features)` array cannot hold, so `fit` takes *lists* of
+per-domain arrays and `transform` needs the domain:
+
+```python
+from sklearn.svm import SVC
+from manipy.sklearn import ManifoldAlignment
+
+ma = ManifoldAlignment(n_components=10).fit([X_hymap, X_aviris], [y_hymap, y_aviris])
+svm = SVC().fit(ma.transform(X_hymap_labelled, domain=0), y_hymap_labelled)
+pred = svm.predict(ma.transform(X_aviris, domain=1))  # the other sensor
+```
+
+What works: `clone`, `get_params` / `set_params`, `check_is_fitted`, NumPy
+output. What does not: `fit_transform`, `Pipeline`, `GridSearchCV` (they pass
+one array), and `check_estimator`. The adapter is tested directly instead.
+The maths is on the [Manifold alignment](alignment.md) page.
+
+::: manipy.sklearn.ManifoldAlignment
