@@ -30,6 +30,28 @@ Y = Isomap(n_components=2, n_neighbors=12).fit_transform(X)
 
 ::: manipy.sklearn.DiffusionMaps
 
+## Out-of-sample extension
+
+`NystromExtension` turns a transductive embedding into a full transformer:
+it fits the wrapped estimator and adds a Nyström `transform`, so the
+embedding can sit inside a `Pipeline`. The training points come back
+exactly. The maths is on the [Out-of-sample extension](out_of_sample.md)
+page.
+
+```python
+import kernellib.sklearn as kls
+from sklearn.pipeline import make_pipeline
+from sklearn.svm import SVC
+from manipy.sklearn import NystromExtension
+
+clf = make_pipeline(
+    NystromExtension(kls.LaplacianEigenmaps(n_components=10, n_neighbors=12)), SVC()
+)
+clf.fit(X_train, y_train).predict(X_test)
+```
+
+::: manipy.sklearn.NystromExtension
+
 ## Manifold alignment
 
 Alignment is a **partial fit** of the scikit-learn contract. It needs several

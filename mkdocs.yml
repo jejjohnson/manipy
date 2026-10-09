@@ -76,6 +76,7 @@ nav:
   - Isomap: isomap.md
   - Locally linear embedding: lle.md
   - Diffusion maps: diffusion_maps.md
+  - Out-of-sample extension: out_of_sample.md
   - Hyperspectral helpers: hsi.md
   - Metrics: metrics.md
   - Datasets: datasets.md
