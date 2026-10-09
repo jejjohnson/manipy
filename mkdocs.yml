@@ -73,6 +73,9 @@ plugins:
 nav:
   - Overview: index.md
   - Manifold alignment: alignment.md
+  - Hyperspectral helpers: hsi.md
+  - Metrics: metrics.md
+  - Datasets: datasets.md
   - scikit-learn adapters: sklearn.md
 
 markdown_extensions:

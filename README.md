@@ -4,9 +4,10 @@ Manifold alignment, dimensionality reduction and hyperspectral workflows in
 JAX, built on [kernellib](https://github.com/jejjohnson/kernellib) and
 [gaussx](https://github.com/jejjohnson/gaussx).
 
-> **Status: pre-alpha (roadmap phase M1).** Manifold alignment
-> (`ManifoldAlignment`: Wang, SSMA, SEMA) and its scikit-learn adapter are
-> in. The other algorithms land in phases M2 to M5; see the
+> **Status: pre-alpha (roadmap phase M2).** Manifold alignment
+> (`ManifoldAlignment`: Wang, SSMA, SEMA), its scikit-learn adapter, the
+> hyperspectral workflow (`manipy.hsi`), metrics and datasets are in. The
+> other algorithms land in phases M3 to M5; see the
 > [roadmap](https://github.com/jejjohnson/kernellib/blob/main/docs/roadmap/roadmap-manipy.md).
 
 ## Legacy code

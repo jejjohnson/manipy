@@ -11,6 +11,9 @@ manipy.__version__
 | Page | Contents |
 |---|---|
 | [Manifold alignment](alignment.md) | `ManifoldAlignment`: Wang, SSMA and SEMA alignment of several domains |
+| [Hyperspectral helpers](hsi.md) | `manipy.hsi`: pixel arrays, grids, potentials, stratified splits |
+| [Metrics](metrics.md) | `manipy.metrics`: classification and embedding-quality metrics |
+| [Datasets](datasets.md) | `manipy.datasets`: synthetic manifolds, Indian Pines, Pavia University, Salinas |
 | [scikit-learn adapters](sklearn.md) | `manipy.sklearn` (extra `manipy-jax[sklearn]`) |
 
 Modules appear here as each phase of the

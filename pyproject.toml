@@ -36,6 +36,9 @@ dependencies = [
 [project.optional-dependencies]
 # The opt-in scikit-learn adapter, manipy.sklearn. The core never imports it.
 sklearn = ["scikit-learn>=1.6"]
+# Dataset downloaders (manipy.datasets.indian_pines, ...): pooch fetches and
+# verifies the files, scipy.io reads the MATLAB .mat containers.
+data = ["pooch>=1.8", "scipy>=1.11"]
 
 [project.urls]
 Repository = "https://github.com/jejjohnson/manipy"
@@ -47,16 +50,22 @@ dev = [
     "pytest-cov>=7.1.0",
     "pre-commit>=4.6.0",
     "pytest-xdist>=3.8",
+    "pooch>=1.8",
+    "scipy>=1.11",
 ]
 lint = [
     "ruff>=0.15.22",
 ]
 typecheck = [
     "scikit-learn>=1.6",
+    "pooch>=1.8",
+    "scipy>=1.11",
     "ty>=0.0.73",
 ]
 docs = [
     "scikit-learn>=1.6",
+    "pooch>=1.8",
+    "scipy>=1.11",
     # The prose half of the site is built by mystmd, a Node CLI installed with
     # `npm install -g mystmd` rather than through uv. See docs/README.md.
     # MkDocs here builds only the API reference, whose `objects.inv` is what

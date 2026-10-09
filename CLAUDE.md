@@ -85,7 +85,7 @@ covers only the API half.
 
 All implementation lives in `src/manipy/`. The public API is flat and re-exported through `src/manipy/__init__.py`; `__all__` there is the contract, and `tests/test_public_api.py` enforces it. Every new top-level module must be added to `SUBMODULES` in that test and given an API doc page. Subpackages are private (`_name`) except `sklearn`.
 
-The planned layout (roadmap §3). Directories are created by the phase that needs them, not ahead of time; at M0 only `__init__.py` exists:
+The planned layout (roadmap §3). Directories are created by the phase that needs them, not ahead of time; at M0 only `__init__.py` existed:
 
 | Path | Contents | Phase |
 |---|---|---|
