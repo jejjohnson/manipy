@@ -10,6 +10,22 @@ pip install "manipy-jax[sklearn]"
 
 The core never imports scikit-learn; `import manipy` does not load it.
 
+## Embeddings
+
+The embedding adapters are transductive, like
+`sklearn.manifold.SpectralEmbedding`: `fit` and `fit_transform`, no
+`transform`. They pass scikit-learn's `check_estimator`, and on small inputs
+cap `n_neighbors` at `n_samples - 1` and `n_components` at what the data
+allow.
+
+```python
+from manipy.sklearn import Isomap
+
+Y = Isomap(n_components=2, n_neighbors=12).fit_transform(X)
+```
+
+::: manipy.sklearn.Isomap
+
 ## Manifold alignment
 
 Alignment is a **partial fit** of the scikit-learn contract. It needs several

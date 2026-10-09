@@ -1206,6 +1206,7 @@ dependencies = [
     { name = "jaxtyping" },
     { name = "kernellib" },
     { name = "lineax" },
+    { name = "scipy" },
 ]
 
 [package.optional-dependencies]
@@ -1263,6 +1264,7 @@ requires-dist = [
     { name = "lineax", specifier = ">=0.1.1" },
     { name = "pooch", marker = "extra == 'data'", specifier = ">=1.8" },
     { name = "scikit-learn", marker = "extra == 'sklearn'", specifier = ">=1.6" },
+    { name = "scipy", specifier = ">=1.11" },
     { name = "scipy", marker = "extra == 'data'", specifier = ">=1.11" },
 ]
 provides-extras = ["sklearn", "data"]

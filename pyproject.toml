@@ -26,6 +26,8 @@ dependencies = [
     "jaxtyping>=0.3",
     "einx>=0.4.3",
     "lineax>=0.1.1",
+    # scipy.sparse.csgraph (Isomap's shortest paths); kernellib needs it too.
+    "scipy>=1.11",
     # kernellib and gaussx are not on PyPI yet; [tool.uv.sources] resolves
     # their release tags from GitHub. The `>=` floors are what a PyPI release
     # will satisfy later.
