@@ -1,6 +1,6 @@
 [project]
 name = "manipy-jax"
-version = "0.0.0"
+version = "0.1.0"
 description = "Manifold alignment, dimensionality reduction and hyperspectral workflows in JAX, built on kernellib."
 authors = [
     {name="J. Emmanuel Johnson", email="jemanjohnson34@gmail.com"},
