@@ -87,16 +87,42 @@ def residuals(
     return jnp.sqrt(einx.sum("[N] n", R**2))
 
 
+def _drop_constant(
+    M: gx.SparseOperator, U: Float[Array, "N k"]
+) -> tuple[Float[Array, " n"], Float[Array, "N n"]]:
+    """Rayleigh-Ritz on the part of ``span(U)`` orthogonal to $\\mathbf 1$.
+
+    $\\mathbf 1$ is an exact null vector of every alignment matrix here, so
+    it lies in the span of the ``k`` smallest eigenvectors. When the null
+    space is degenerate (a flat sheet under HLLE or LTSA) ``eigh`` may return
+    any basis of it, and dropping the first column would not drop
+    $\\mathbf 1$. Projecting it out and re-solving on the remaining
+    ``k - 1`` directions does, and changes nothing otherwise.
+    """
+    P = einx.subtract("N k, k -> N k", U, einx.mean("[N] k", U))
+    s, Q = jnp.linalg.eigh(einx.dot("N a, N b -> a b", P, P))
+    # Drop the smallest direction (the one along 1), orthonormalise the rest.
+    V = einx.dot(
+        "N a, a b -> N b", P, einx.divide("a b, b -> a b", Q, jnp.sqrt(s))[:, 1:]
+    )
+    MV = jax.vmap(M.mv, in_axes=1, out_axes=1)(V)
+    T = einx.dot("N a, N b -> a b", V, MV)
+    lam, S = jnp.linalg.eigh(0.5 * (T + einx.id("a b -> b a", T)))
+    return lam, einx.dot("N a, a b -> N b", V, S)
+
+
 def smallest_eigpairs(
     M: gx.SparseOperator,
     n_components: int,
     *,
-    n_skip: int = 1,
     solver: EigenSolver = "dense",
     seed: int = 0,
 ) -> tuple[Float[Array, " n"], Float[Array, "N n"]]:
-    """Eigenpairs ``n_skip`` to ``n_skip + n_components - 1`` (ascending) of
-    the symmetric positive semidefinite ``M``.
+    """The ``n_components`` smallest eigenpairs (ascending) of the symmetric
+    positive semidefinite ``M`` orthogonal to its null vector $\\mathbf 1$.
+
+    The ``n_components + 1`` smallest eigenvectors are computed by
+    ``solver``, then $\\mathbf 1$ is projected out (`_drop_constant`).
 
     - ``"dense"``: ``jnp.linalg.eigh`` of the materialised matrix, exact,
       $O(N^3)$; differentiable in the values.
@@ -114,8 +140,8 @@ def smallest_eigpairs(
     $\\sqrt{\\varepsilon}\\, c$ and raises instead of returning wrong pairs.
 
     Raises:
-        ValueError: For an unknown ``solver``, or ``n_skip + n_components``
-            not below ``N``.
+        ValueError: For an unknown ``solver``, or ``n_components + 1`` not
+            below ``N``.
         RuntimeError: If ``"arpack"`` fails the residual check.
     """
     if solver not in EIGEN_SOLVERS:
@@ -123,30 +149,28 @@ def smallest_eigpairs(
             f"eigen_solver must be one of {EIGEN_SOLVERS}, got {solver!r}."
         )
     N = M.pattern.shape[0]
-    k = n_skip + n_components
+    k = n_components + 1
     if k >= N:
         raise ValueError(
-            f"Need n_components + {n_skip} < N; got n_components = {n_components} "
-            f"and N = {N}."
+            f"Need n_components + 1 < N; got n_components = {n_components} and N = {N}."
         )
     if solver == "dense":
-        lam, U = jnp.linalg.eigh(M.as_matrix())
-        return lam[n_skip:k], U[:, n_skip:k]
+        _, U = jnp.linalg.eigh(M.as_matrix())
+        return _drop_constant(M, U[:, :k])
 
     c = _gershgorin(M)
     v0 = np.random.default_rng(seed).uniform(size=N)
     sigma = -1e-10 * float(c)
     lam_np, U_np = spla.eigsh(_to_scipy(M), k=k, sigma=sigma, which="LM", v0=v0)
-    order = np.argsort(lam_np)
-    lam = jnp.asarray(lam_np[order], dtype=M.values.dtype)
-    U = jnp.asarray(U_np[:, order], dtype=M.values.dtype)
+    lam = jnp.asarray(lam_np, dtype=M.values.dtype)
+    U = jnp.asarray(U_np, dtype=M.values.dtype)
     tol = jnp.sqrt(jnp.finfo(M.values.dtype).eps) * c
     if not bool(jnp.all(residuals(M, lam, U) <= tol)):
         raise RuntimeError(
             'eigen_solver="arpack" did not converge on the smallest eigenpairs '
             '(residual check failed); use eigen_solver="dense".'
         )
-    return lam[n_skip:], U[:, n_skip:]
+    return _drop_constant(M, U)
 
 
 def fix_signs(U: Float[Array, "N n"]) -> Float[Array, "N n"]:

@@ -20,6 +20,8 @@ ESTIMATORS = [
     LocallyLinearEmbedding(n_components=2, n_neighbors=5),
     LocallyLinearEmbedding(n_components=2, n_neighbors=5, method="modified"),
     LocallyLinearEmbedding(n_components=2, n_neighbors=5, eigen_solver="arpack"),
+    LocallyLinearEmbedding(n_components=2, n_neighbors=6, method="hessian"),
+    LocallyLinearEmbedding(n_components=2, n_neighbors=5, method="ltsa"),
 ]
 
 _MODELS = {
@@ -42,3 +44,9 @@ def test_adapter_matches_core_model(estimator) -> None:
     assert isinstance(est.model_, _MODELS[type(est).__name__])
     np.testing.assert_allclose(Y, np.asarray(est.model_.embedding))
     assert est.n_features_in_ == 3
+
+
+def test_hessian_rejects_too_few_samples() -> None:
+    X = np.random.default_rng(0).normal(size=(3, 2))
+    with pytest.raises(ValueError, match="hessian"):
+        LocallyLinearEmbedding(method="hessian").fit(X)

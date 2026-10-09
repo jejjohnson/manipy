@@ -12,7 +12,7 @@ manipy.__version__
 |---|---|
 | [Manifold alignment](alignment.md) | `ManifoldAlignment`: Wang, SSMA and SEMA alignment of several domains |
 | [Isomap](isomap.md) | `Isomap`: Isomap and landmark Isomap |
-| [Locally linear embedding](lle.md) | `LocallyLinearEmbedding`: LLE and modified LLE |
+| [Locally linear embedding](lle.md) | `LocallyLinearEmbedding`: LLE, modified LLE, Hessian LLE, LTSA |
 | [Hyperspectral helpers](hsi.md) | `manipy.hsi`: pixel arrays, grids, potentials, stratified splits |
 | [Metrics](metrics.md) | `manipy.metrics`: classification and embedding-quality metrics |
 | [Datasets](datasets.md) | `manipy.datasets`: synthetic manifolds, Indian Pines, Pavia University, Salinas |
