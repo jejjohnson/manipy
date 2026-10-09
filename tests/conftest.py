@@ -24,7 +24,11 @@ def getkey() -> eqxi.GetKey:
 # adapters' examples are integration tests; add the qualified names of any
 # doctest that measures over a second (mostly jit compilation) to the set.
 _SLOW_DOCTESTS: frozenset[str] = frozenset(
-    {"manipy._alignment._linear.ManifoldAlignment"}  # ~10 s cold: graphs, fit, compile
+    {
+        # ~10 s cold: graphs, fit, compile
+        "manipy._alignment._linear.ManifoldAlignment",
+        "manipy._embeddings._isomap.Isomap",  # ~5 s: two swiss-roll fits
+    }
 )
 
 
