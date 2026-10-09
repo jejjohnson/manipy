@@ -117,18 +117,25 @@ class Isomap(_Embedding):
         return self
 
 
+def _hessian_size(n: int) -> int:
+    """Hessian LLE needs more than ``n (n + 3) / 2`` neighbours."""
+    return n * (n + 3) // 2
+
+
 class LocallyLinearEmbedding(_Embedding):
-    """LLE and modified LLE (`manipy.LocallyLinearEmbedding`) for scikit-learn.
+    """LLE, modified LLE, Hessian LLE and LTSA (`manipy.LocallyLinearEmbedding`)
+    for scikit-learn.
 
     Like ``sklearn.manifold.LocallyLinearEmbedding`` without ``transform``:
     ``fit`` / ``fit_transform`` only. On small inputs ``n_neighbors`` is
     capped at ``n_samples - 1`` and ``n_components`` at
-    ``min(n_features, n_samples - 2)``.
+    ``min(n_features, n_samples - 2)``, and for ``"hessian"`` further until
+    ``n_neighbors > n_components (n_components + 3) / 2``.
 
     Args:
         n_components: Embedding dimension.
         n_neighbors: Neighbours per point.
-        method: ``"standard"`` or ``"modified"``.
+        method: ``"standard"``, ``"modified"``, ``"hessian"`` or ``"ltsa"``.
         reg: Relative regularisation of the local Gram matrices.
         modified_tol: Householder tolerance of ``"modified"``.
         eigen_solver: ``"dense"`` or ``"arpack"``.
@@ -157,7 +164,7 @@ class LocallyLinearEmbedding(_Embedding):
         n_components: int = 2,
         *,
         n_neighbors: int = 10,
-        method: Literal["standard", "modified"] = "standard",
+        method: Literal["standard", "modified", "hessian", "ltsa"] = "standard",
         reg: float = 1e-3,
         modified_tol: float = 1e-12,
         eigen_solver: Literal["dense", "arpack"] = "dense",
@@ -186,9 +193,19 @@ class LocallyLinearEmbedding(_Embedding):
         X = validate_data(self, X, dtype=_FLOAT)
         n, d = X.shape
         _check_n_samples(n, 3, type(self).__name__)
+        n_neighbors = min(self.n_neighbors, n - 1)
+        n_components = min(self.n_components, d, n - 2)
+        if self.method == "hessian":
+            while n_components > 1 and n_neighbors <= _hessian_size(n_components):
+                n_components -= 1
+            if n_neighbors <= _hessian_size(n_components):
+                raise ValueError(
+                    'method="hessian" needs n_neighbors > 2 even for one '
+                    f"component; got n_samples = {n}."
+                )
         self.model_ = emb.LocallyLinearEmbedding(
-            n_components=min(self.n_components, d, n - 2),
-            n_neighbors=min(self.n_neighbors, n - 1),
+            n_components=n_components,
+            n_neighbors=n_neighbors,
             method=self.method,
             reg=self.reg,
             modified_tol=self.modified_tol,

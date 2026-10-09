@@ -9,7 +9,7 @@ The public API is flat and ``__all__`` is the contract:
 - `ManifoldAlignment`: Wang, SSMA and SEMA manifold alignment of several
   domains with partial labels.
 - `Isomap`: Isomap and landmark Isomap.
-- `LocallyLinearEmbedding`: LLE and modified LLE.
+- `LocallyLinearEmbedding`: LLE, modified LLE, Hessian LLE and LTSA.
 
 The scikit-learn adapters live in ``manipy.sklearn`` (extra
 ``manipy-jax[sklearn]``).

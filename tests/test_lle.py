@@ -21,7 +21,7 @@ def roll() -> jax.Array:
     return X
 
 
-@pytest.mark.parametrize("method", ["standard", "modified"])
+@pytest.mark.parametrize("method", ["standard", "modified", "ltsa"])
 def test_matches_sklearn_subspace(roll, method) -> None:
     ours = manipy.LocallyLinearEmbedding(
         n_components=2, n_neighbors=10, method=method
@@ -66,7 +66,7 @@ def test_standard_operator_is_i_minus_w_squared(roll) -> None:
     np.testing.assert_allclose(M, einx.dot("i a, i b -> a b", I_W, I_W), atol=1e-12)
 
 
-@pytest.mark.parametrize("method", ["standard", "modified"])
+@pytest.mark.parametrize("method", ["standard", "modified", "hessian", "ltsa"])
 def test_arpack_matches_dense(roll, method) -> None:
     dense = manipy.LocallyLinearEmbedding(n_neighbors=10, method=method).fit(roll)
     arpack = manipy.LocallyLinearEmbedding(
@@ -113,6 +113,7 @@ def test_unfitted_fields_are_none() -> None:
         ({"n_components": 0}, "n_components"),
         ({"n_neighbors": 0}, "n_neighbors"),
         ({"method": "modified", "n_neighbors": 1, "n_components": 2}, "modified"),
+        ({"method": "hessian", "n_neighbors": 5, "n_components": 2}, "hessian"),
     ],
 )
 def test_invalid_config(kwargs, match) -> None:
@@ -130,8 +131,51 @@ def test_invalid_inputs() -> None:
         manipy.LocallyLinearEmbedding(n_neighbors=5).fit(X)
 
 
+def test_sklearns_hessian_is_ltsa(roll) -> None:
+    # scikit-learn's method="hessian" takes the *full* QR of [1, U, U⊙U], so
+    # its blocks project onto the whole complement of [1, U]: LTSA's blocks.
+    # Ours keeps the dp Hessian columns of the reduced QR (Donoho & Grimes).
+    sk = SkLLE(
+        n_components=2, n_neighbors=10, method="hessian", eigen_solver="dense"
+    ).fit(np.asarray(roll))
+    ltsa = manipy.LocallyLinearEmbedding(n_neighbors=10, method="ltsa").fit(roll)
+    angles = sla.subspace_angles(np.asarray(ltsa.embedding), sk.embedding_)
+    assert np.max(angles) < 1e-6
+
+
+def test_hessian_matches_a_loop_reference(roll) -> None:
+    X, k, n = np.asarray(roll[:60]), 8, 2
+    idx = np.asarray(kl.nearest_neighbors(roll[:60], k).indices)
+    M = np.zeros((60, 60))
+    for i in range(60):
+        P = einx.subtract("k d, d -> k d", X[idx[i]], einx.mean("[k] d", X[idx[i]]))
+        U = np.linalg.svd(P, full_matrices=False)[0][:, :n]
+        Y = np.column_stack(
+            [np.ones(k), U, U[:, 0] ** 2, U[:, 0] * U[:, 1], U[:, 1] ** 2]
+        )
+        H = np.linalg.qr(Y)[0][:, n + 1 :]  # reduced QR: the 3 Hessian columns
+        M[np.ix_(idx[i], idx[i])] += einx.dot("a c, b c -> a b", H, H)
+    lam, V = np.linalg.eigh(M)
+    ours = manipy.LocallyLinearEmbedding(n_neighbors=k, method="hessian").fit(roll[:60])
+    np.testing.assert_allclose(ours.eigenvalues, lam[1:3], rtol=1e-8, atol=1e-12)
+    assert np.max(sla.subspace_angles(np.asarray(ours.embedding), V[:, 1:3])) < 1e-6
+
+
+@pytest.mark.parametrize("method", ["hessian", "ltsa"])
+def test_flat_sheet_is_recovered_exactly(method) -> None:
+    # An isometrically embedded plane: the null space of M after the constant
+    # is spanned by the two (centred) intrinsic coordinates.
+    uv = jax.random.uniform(jax.random.key(5), (150, 2)) * jnp.array([3.0, 2.0])
+    R = jnp.linalg.qr(jax.random.normal(jax.random.key(6), (3, 3)))[0]
+    X = einx.dot("n a, b a -> n b", jnp.concatenate([uv, jnp.zeros((150, 1))], 1), R)
+    Y = manipy.LocallyLinearEmbedding(n_neighbors=10, method=method).fit(X)
+    uv_c = einx.subtract("n a, a -> n a", uv, einx.mean("[n] a", uv))
+    assert np.max(sla.subspace_angles(np.asarray(Y.embedding), uv_c)) < 1e-6
+    np.testing.assert_allclose(Y.eigenvalues, 0.0, atol=1e-9)
+
+
 @pytest.mark.slow
-@pytest.mark.parametrize("method", ["standard", "modified"])
+@pytest.mark.parametrize("method", ["standard", "modified", "hessian", "ltsa"])
 def test_swiss_roll_trustworthiness_matches_sklearn(method) -> None:
     X, _ = manipy.datasets.swiss_roll(600, key=jax.random.key(4))
     sk = SkLLE(
@@ -142,4 +186,18 @@ def test_swiss_roll_trustworthiness_matches_sklearn(method) -> None:
     ).fit(X)
     t_sk = float(manipy.metrics.trustworthiness(X, sk, n_neighbors=10))
     t_ours = float(manipy.metrics.trustworthiness(X, ours.embedding, n_neighbors=10))
-    assert abs(t_ours - t_sk) < 1e-3
+    # Hessian differs by design (sklearn's is LTSA; see above), so only
+    # comparable quality is asked of it.
+    assert abs(t_ours - t_sk) < (0.03 if method == "hessian" else 1e-3)
+
+
+def test_arpack_residual_check_raises(roll, monkeypatch) -> None:
+    def wrong(A, k, **kwargs):
+        rng = np.random.default_rng(0)
+        return np.arange(k, dtype=float), np.linalg.qr(
+            rng.normal(size=(A.shape[0], k))
+        )[0]
+
+    monkeypatch.setattr(_spectral.spla, "eigsh", wrong)
+    with pytest.raises(RuntimeError, match="residual"):
+        manipy.LocallyLinearEmbedding(n_neighbors=10, eigen_solver="arpack").fit(roll)
