@@ -12,7 +12,7 @@ from sklearn.utils.validation import validate_data
 from manipy import _embeddings as emb
 
 
-__all__ = ["Isomap"]
+__all__ = ["Isomap", "LocallyLinearEmbedding"]
 
 _FLOAT = (np.float64, np.float32)
 
@@ -114,4 +114,89 @@ class Isomap(_Embedding):
         self.landmarks_ = (
             None if self.model_.landmarks is None else np.asarray(self.model_.landmarks)
         )
+        return self
+
+
+class LocallyLinearEmbedding(_Embedding):
+    """LLE and modified LLE (`manipy.LocallyLinearEmbedding`) for scikit-learn.
+
+    Like ``sklearn.manifold.LocallyLinearEmbedding`` without ``transform``:
+    ``fit`` / ``fit_transform`` only. On small inputs ``n_neighbors`` is
+    capped at ``n_samples - 1`` and ``n_components`` at
+    ``min(n_features, n_samples - 2)``.
+
+    Args:
+        n_components: Embedding dimension.
+        n_neighbors: Neighbours per point.
+        method: ``"standard"`` or ``"modified"``.
+        reg: Relative regularisation of the local Gram matrices.
+        modified_tol: Householder tolerance of ``"modified"``.
+        eigen_solver: ``"dense"`` or ``"arpack"``.
+        neighbors_backend: ``"exact"``, ``"pynndescent"`` or ``"sklearn"``.
+        random_state: Seed for approximate neighbours and ARPACK.
+
+    Attributes:
+        embedding_: ``(n_samples, n_components)``.
+        eigenvalues_: The eigenvalues of the alignment matrix used.
+        reconstruction_error_: Their sum.
+        model_: The fitted `manipy.LocallyLinearEmbedding`.
+        n_features_in_: Number of input features.
+
+    Examples:
+        >>> import numpy as np
+        >>> from manipy.sklearn import LocallyLinearEmbedding
+        >>> X = np.random.default_rng(0).normal(size=(60, 3))
+        >>> LocallyLinearEmbedding(n_components=2, n_neighbors=8).fit_transform(
+        ...     X
+        ... ).shape
+        (60, 2)
+    """
+
+    def __init__(
+        self,
+        n_components: int = 2,
+        *,
+        n_neighbors: int = 10,
+        method: Literal["standard", "modified"] = "standard",
+        reg: float = 1e-3,
+        modified_tol: float = 1e-12,
+        eigen_solver: Literal["dense", "arpack"] = "dense",
+        neighbors_backend: Literal["exact", "pynndescent", "sklearn"] = "exact",
+        random_state: int | None = None,
+    ) -> None:
+        self.n_components = n_components
+        self.n_neighbors = n_neighbors
+        self.method = method
+        self.reg = reg
+        self.modified_tol = modified_tol
+        self.eigen_solver = eigen_solver
+        self.neighbors_backend = neighbors_backend
+        self.random_state = random_state
+
+    def fit(self, X: Any, y: Any = None) -> LocallyLinearEmbedding:
+        """Embed ``X``.
+
+        Args:
+            X: ``(n_samples, n_features)``.
+            y: Ignored.
+
+        Returns:
+            ``self``.
+        """
+        X = validate_data(self, X, dtype=_FLOAT)
+        n, d = X.shape
+        _check_n_samples(n, 3, type(self).__name__)
+        self.model_ = emb.LocallyLinearEmbedding(
+            n_components=min(self.n_components, d, n - 2),
+            n_neighbors=min(self.n_neighbors, n - 1),
+            method=self.method,
+            reg=self.reg,
+            modified_tol=self.modified_tol,
+            eigen_solver=self.eigen_solver,
+            neighbors_backend=self.neighbors_backend,
+            random_state=self.random_state,
+        ).fit(jnp.asarray(X))
+        self.embedding_ = np.asarray(self.model_.embedding)
+        self.eigenvalues_ = np.asarray(self.model_.eigenvalues)
+        self.reconstruction_error_ = float(np.asarray(self.model_.reconstruction_error))
         return self

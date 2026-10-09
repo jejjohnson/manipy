@@ -74,6 +74,7 @@ nav:
   - Overview: index.md
   - Manifold alignment: alignment.md
   - Isomap: isomap.md
+  - Locally linear embedding: lle.md
   - Hyperspectral helpers: hsi.md
   - Metrics: metrics.md
   - Datasets: datasets.md
