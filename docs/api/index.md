@@ -8,8 +8,13 @@ import manipy
 manipy.__version__
 ```
 
-`__all__` is empty at the M0 scaffold. Modules appear here as each phase of
-the [roadmap](https://jejjohnson.github.io/kernellib/roadmap-manipy/) lands.
+| Page | Contents |
+|---|---|
+| [Manifold alignment](alignment.md) | `ManifoldAlignment`: Wang, SSMA and SEMA alignment of several domains |
+| [scikit-learn adapters](sklearn.md) | `manipy.sklearn` (extra `manipy-jax[sklearn]`) |
+
+Modules appear here as each phase of the
+[roadmap](https://jejjohnson.github.io/kernellib/roadmap-manipy/) lands.
 
 ## Package overview
 

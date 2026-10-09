@@ -118,7 +118,7 @@ Dependency direction is one-way: foundations (`_datasets`, `_metrics`, `_hsi`) �
 - `@pytest.mark.slow`: individually expensive tests (> ~1 s — heavy numerics, `jit`+`grad`+`vmap` sweeps, convergence checks, subprocess import checks).
 - `@pytest.mark.integration`: end-to-end workflows — scikit-learn `check_estimator` sweeps, cross-library pipelines (kernellib / gaussx), dataset downloads, optional backends. Doctests under `manipy.sklearn.` are marked integration automatically by `tests/conftest.py`; slow doctests are listed in `_SLOW_DOCTESTS` there, since a doctest cannot take a decorator.
 
-`addopts` selects `-m "not slow and not integration"`, so plain `uv run pytest` runs the fast tier. The last `-m` wins: `uv run pytest -m slow`, `-m integration`, or `-m ""` for everything. Mark a new test `slow` if it takes more than about a second. CI runs the three tiers as parallel jobs and gates coverage on their union (`fail_under` in `pyproject.toml`), so no single tier has to reach it; locally, `make test-cov` runs every tier with coverage. The gate is 0 at M0 because the package is nearly empty; raise it (kernellib uses 90) once M1 lands real code.
+`addopts` selects `-m "not slow and not integration"`, so plain `uv run pytest` runs the fast tier. The last `-m` wins: `uv run pytest -m slow`, `-m integration`, or `-m ""` for everything. Mark a new test `slow` if it takes more than about a second. CI runs the three tiers as parallel jobs and gates coverage on their union (`fail_under` in `pyproject.toml`), so no single tier has to reach it; locally, `make test-cov` runs every tier with coverage. The gate is 90, as in kernellib.
 
 ## Tests That Assert On Random Draws
 
