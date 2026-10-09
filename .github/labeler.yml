@@ -1,0 +1,75 @@
+# PR auto-labeling rules.
+#
+# Applied by .github/workflows/label-pr.yml using actions/labeler.
+# Labels referenced here must exist — run `make gh-labels` to create them.
+# The `dependencies` label is also created by the bootstrap script so this
+# file works on a fresh repo with no manual label setup.
+#
+# Scopes below map file paths to the standard taxonomy:
+#   area:*   — which part of the project the change touches
+#   layer:*  — which implementation layer (if the project has a layer stack)
+#   type:*   — left to issue templates (NOT auto-applied on PRs)
+#
+# Adjust paths under layer:* to match your project's internal module layout.
+
+"area:engineering":
+  - changed-files:
+    - any-glob-to-any-file:
+      - ".github/**"
+      - "pyproject.toml"
+      - "Makefile"
+      - ".pre-commit-config.yaml"
+      - "uv.lock"
+
+"area:docs":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "docs/**"
+      - "mkdocs.yml"
+      - "notebooks/**"
+      - "*.md"
+      - "design_docs/**"
+
+"area:testing":
+  - changed-files:
+    - any-glob-to-any-file: "tests/**"
+
+# Catch-all for source changes that don't match a specific layer scope.
+# Ensures every `src/**` PR receives at least one area label.
+"area:code":
+  - changed-files:
+    - any-glob-to-any-file: "src/**"
+
+# --- Layer scopes — mirror the one-way dependency chain in CLAUDE.md -------
+#
+#   layer:0-foundations  datasets, metrics, HSI image helpers — no manipy dependencies
+#   layer:1-methods      alignment, embeddings, out-of-sample — depend on layer 0
+#   layer:2-adapters     the scikit-learn adapter package — wraps layers 0 and 1
+
+"layer:0-foundations":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "src/manipy/_datasets/**"
+      - "src/manipy/_metrics/**"
+      - "src/manipy/_hsi/**"
+
+"layer:1-methods":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "src/manipy/_alignment/**"
+      - "src/manipy/_embeddings/**"
+      - "src/manipy/_out_of_sample.py"
+
+"layer:2-adapters":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "src/manipy/sklearn/**"
+
+# --- Default / legacy labels retained for Dependabot compatibility ---------
+
+"dependencies":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "pyproject.toml"
+      - ".pre-commit-config.yaml"
+      - "uv.lock"
